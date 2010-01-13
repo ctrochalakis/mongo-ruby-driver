@@ -372,21 +372,11 @@ module Mongo
     def selector_with_special_query_fields
       sel = OrderedHash.new
       sel['query']     = @selector
-      sel['orderby']   = formatted_order_clause if @order
+      sel['orderby']   = formatted_sort_clause(@order) if @order
       sel['$hint']     = @hint if @hint && @hint.length > 0
       sel['$explain']  = true if @explain
       sel['$snapshot'] = true if @snapshot
       sel
-    end
-
-    def formatted_order_clause
-      case @order
-        when String, Symbol then string_as_sort_parameters(@order)
-        when Array then array_as_sort_parameters(@order)
-        else
-          raise InvalidSortValueError, "Illegal sort clause, '#{@order.class.name}'; must be of the form " +
-            "[['field1', '(ascending|descending)'], ['field2', '(ascending|descending)']]"
-      end
     end
 
     def to_s

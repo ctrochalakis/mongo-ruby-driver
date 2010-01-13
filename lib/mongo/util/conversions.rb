@@ -22,6 +22,16 @@ module Mongo #:nodoc:
     ASCENDING_CONVERSION  = ["ascending", "asc", "1"]
     DESCENDING_CONVERSION = ["descending", "desc", "-1"]
 
+    def formatted_sort_clause(sort)
+      case sort
+      when String, Symbol then string_as_sort_parameters(sort)
+      when Array then array_as_sort_parameters(sort)
+      else
+        raise InvalidSortValueError, "Illegal sort clause, '#{sort}'; must be of the form " +
+          "[['field1', '(ascending|descending)'], ['field2', '(ascending|descending)']]"
+      end
+    end
+    
     # Converts the supplied +Array+ to a +Hash+ to pass to mongo as
     # sorting parameters. The returned +Hash+ will vary depending 
     # on whether the passed +Array+ is one or two dimensional.
