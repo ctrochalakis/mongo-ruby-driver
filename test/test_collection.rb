@@ -296,16 +296,16 @@ class TestCollection < Test::Unit::TestCase
     assert c.closed?
   end
 
-  if @@version > "1.3.0"
+  if @@version >= "1.3.0"
     def test_find_modify
-      @@test << { "job" => "job1", "inprogress" => false, "priority" => 1 }
-      @@test << { "job" => "job2", "inprogress" => false, "priority" => 2 }
+      @@test << { "job" => "job1", "inprogress" => false, "priority" => 2 }
+      @@test << { "job" => "job2", "inprogress" => false, "priority" => 3 }
+      @@test << { "job" => "job3", "inprogress" => false, "priority" => 1 }
 
       res = @@test.find_modify(:query => {:inprogress => false},
-                               :sort => { :priority => -1 },
+                               :sort => [:priority, :desc],
                                :update => {'$set' => { :inprogress => true} }
                                )
-
       assert_equal "job2", res['job']
       assert_equal true,  @@test.find_one(:job => 'job2')['inprogress']
     end

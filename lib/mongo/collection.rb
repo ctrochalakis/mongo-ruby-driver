@@ -18,6 +18,7 @@ module Mongo
 
   # A named collection of documents in a database.
   class Collection
+    include Mongo::Conversions
 
     attr_reader :db, :name, :pk_factory, :hint
 
@@ -173,6 +174,10 @@ module Mongo
     def find_modify(opts={})
       hash = OrderedHash.new
       hash['findandmodify'] = self.name
+      
+      sort = opts.delete(:sort)
+      hash[:sort] = formatted_sort_clause(sort) if sort
+
       hash.merge! opts
 
       result = @db.command(hash)
