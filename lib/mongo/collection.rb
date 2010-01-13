@@ -156,6 +156,33 @@ module Mongo
       end
     end
 
+    # Find and Modify (or Remove)
+    # This command is useful to atomically change an object and then get back the results
+    #
+    # @option opts [Hash] :query ({}) a query selector document, like what's passed to #find, to limit
+    #   the operation to a subset of the collection.
+    # @option opts [Array] :sort ([]) an array of [key, direction] pairs to sort by. Direction should
+    #   be specified as Mongo::ASCENDING (or :ascending / :asc) or Mongo::DESCENDING (or :descending / :desc)
+    # @option opts [Boolean] :remove (false) set to a true to remove the object before returning
+    # @option opts [Hash] :update ({}) a modifier object that updates the document
+    # @option opts [Boolean] :new (false) if true, return the modified object rather than the original. Ignored for remove.
+    #
+    # @return [Hash] The document from the database
+    #
+    # @see http://www.mongodb.org/display/DOCS/findandmodify+Command
+    def find_modify(opts={})
+      hash = OrderedHash.new
+      hash['findandmodify'] = self.name
+      hash.merge! opts
+
+      result = @db.command(hash)
+      unless result["ok"] == 1
+        raise Mongo::OperationFailure, "find_modify failed: #{result['errmsg']}"
+      end
+
+      document = result['value']
+    end
+
     # Return a single object from the database.
     #
     # @return [OrderedHash, Nil]
